@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "masstransit"
+version = "0.0.1"
+authors = [
+  { name="DenissDen", email="denissden1337@gmail.com" },
+]
+description = "Python implementation of .NET Masstransit"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = [
+    "masstransit",
+    "rabbitmq",
+    "dotnet",
+    "microservices",
+]
+dependencies = [
+    "aio-pika>=9.0.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/denissden/masstransit-python"
+"Bug Tracker" = "https://github.com/denissden/masstransit-python/issues"
