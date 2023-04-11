@@ -4,17 +4,16 @@ import platform
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 
 import aio_pika
 
-from .utils import to_camel_case
 
 @dataclass()
 class PublisherABC(ABC):
     contracts_namespace: str = ""
 
-    def wrap_message(self, content, mt_type: str, case_converter: to_camel_case):
+    def wrap_message(self, content, mt_type: str, case_converter=None):
         converted_mt_type = mt_type
         if case_converter is not None:
             converted_mt_type = case_converter(mt_type)
@@ -36,7 +35,7 @@ class PublisherABC(ABC):
         }
 
     @abstractmethod
-    async def publish(self, message, mt_type: str) -> dict[str, Any]:
+    async def publish(self, message, mt_type: str, case_converter: Callable[[str], str] | None = None) -> dict[str, Any]:
         pass
 
 
@@ -44,8 +43,8 @@ class PublisherABC(ABC):
 class RabbitMQPublisher(PublisherABC):
     channel: aio_pika.abc.AbstractRobustChannel = None
 
-    async def publish(self, message, mt_type: str):
-        mt_message = self.wrap_message(message, mt_type)
+    async def publish(self, message, mt_type: str, case_converter: Callable[[str], str] | None = None):
+        mt_message = self.wrap_message(message, mt_type, case_converter)
 
         msg = aio_pika.Message(
             body=json.dumps(mt_message, indent=4).encode('utf-8'),
