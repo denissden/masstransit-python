@@ -26,11 +26,12 @@ class ConsumerABC(ABC):
         logger.debug("%s %s", mt_type, message, )
 
         handlers = self.handlers.get(mt_type)
-        for handler in handlers:
-            await handler(mt_type, message, context)
-
         if not handlers:
             logger.warning("No handler for %s", mt_type)
+            return
+
+        for handler in handlers:
+            await handler(mt_type, message, context)
 
     def handle(self, mt_type: str, handler: HandlerType):
         self.handlers[mt_type].append(handler)
