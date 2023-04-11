@@ -4,7 +4,7 @@ from .providers import RpcProvider, rpc_call, MessageProvider
 from .publisher import PublisherABC, RabbitMQPublisher
 from .consumer import ConsumerABC, RabbitMQConsumer
 from .decorators import consume
-import utils
+from . import utils
 
 static: MassTransit = None
 
