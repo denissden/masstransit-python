@@ -10,18 +10,21 @@ import aio_pika
 
 from .utils import to_camel_case
 
-
 @dataclass()
 class PublisherABC(ABC):
     contracts_namespace: str = ""
 
-    def wrap_message(self, content, mt_type: str):
+    def wrap_message(self, content, mt_type: str, case_converter: to_camel_case):
+        converted_mt_type = mt_type
+        if case_converter is not None:
+            converted_mt_type = case_converter(mt_type)
+
         return {
             "messageId": str(uuid.uuid4()),
             "conversationId": str(uuid.uuid4()),
             "correlationId": str(uuid.uuid4()),
             "messageType": [
-                f"urn:message:{self.contracts_namespace}:{to_camel_case(mt_type)}"
+                f"urn:message:{self.contracts_namespace}:{converted_mt_type}"
             ],
             "message": content,
             "sentTime": datetime.datetime.utcnow().isoformat(),
