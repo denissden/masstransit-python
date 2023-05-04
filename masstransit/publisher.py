@@ -35,7 +35,7 @@ class PublisherABC(ABC):
         }
 
     @abstractmethod
-    async def publish(self, message, mt_type: str, case_converter: Callable[[str], str] | None = None) -> dict[str, Any]:
+    async def publish(self, message, mt_type: str, exchange_name: str, case_converter: Callable[[str], str] | None = None) -> dict[str, Any]:
         pass
 
 
@@ -43,11 +43,12 @@ class PublisherABC(ABC):
 class RabbitMQPublisher(PublisherABC):
     channel: aio_pika.abc.AbstractRobustChannel = None
 
-    async def publish(self, message, mt_type: str, case_converter: Callable[[str], str] | None = None):
+    async def publish(self, message, mt_type: str, exchange_name: str, case_converter: Callable[[str], str] | None = None):
         mt_message = self.wrap_message(message, mt_type, case_converter)
 
         msg = aio_pika.Message(
             body=json.dumps(mt_message, indent=4).encode('utf-8'),
         )
-        await self.channel.default_exchange.publish(msg, routing_key=mt_type)
+        exchange = await self.channel.get_exchange(exchange_name, ensure=True)
+        await exchange.publish(msg, routing_key=mt_type)
         return mt_message
