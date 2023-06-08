@@ -29,11 +29,13 @@ class RabbitMQMassTransit(MassTransit):
                       connection_string: str,
                       contracts_namespace: str,
                       consume_queue_exchange: str,
-                      consume_queue: str):
+                      consume_queue: str,
+                      prefetch_count=5):
         connection = await aio_pika.connect_robust(
             connection_string
         )
         channel = await connection.channel()
+        await channel.set_qos(prefetch_count=prefetch_count)
         queue = await channel.declare_queue(consume_queue, durable=True)
         exchange = await channel.declare_exchange(consume_queue_exchange, type=ExchangeType.FANOUT, durable=True)
         await queue.bind(exchange)
